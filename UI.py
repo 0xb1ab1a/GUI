@@ -63,7 +63,7 @@ BaseMenu = Menu_process(root)
 under_menu = BaseMenu.menu_col('File', {'Exit': destroyer})
 # THINK how pass an argument "workspace" to destroyer
 # under_2_menu = BaseMenu.menu_col('Help')
-
+#хуй вам в рот, гит
 und_under_menu = BaseMenu.menu_ins(under_menu, 0, 'Model', {'Create rectangle':crt_geom(), 'Create Oval':crt_geom()})
 # und_under_menu = BaseMenu.menu_ins(under_2_menu, 'Version', 'Check for updates', 'Title')
 
