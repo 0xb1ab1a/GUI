@@ -6,8 +6,7 @@ class ButtonProcess():
     def __init__(self, workspace, text_var, process, row, col):
         self.but = Button(workspace, text=text_var)
         self.but.grid(row=row, column=col)
-        self.but.bind(process, act.func)
-
+        self.but.bind(process, act.func_any)
 
 class Actions():
     def __init__(self, workspace, text_var, process):
@@ -17,16 +16,19 @@ class Actions():
 
     def crt_geom(self):
         """Temp func"""
-
     pass
 
     def destroyer(self):
         root.destroy()
 
-    def func(self, event):
+    def func_any(self, event):
         self.new_but = Button(self.workspace, text=self.text_var)
         self.new_but.pack()
-        self.new_but.bind(self.process, self.func)
+        self.new_but.bind(self.process, self.func_any)
+
+    def func_new_win(self):
+        self.new_win = Toplevel(self.workspace)
+        self.new_win.title('New window')
 
 
 class LabelProcess():
@@ -73,14 +75,9 @@ class MenuProcess():
         for i, j in inc_dict.items():
             self.menu_internal.add_command(label=i, command=j)
 
-
-class Windows:
-    def __init__(self, workspace):
-        self.new_win = Toplevel(workspace)
-
-
 if __name__ == "__main__":
     root = Tk()
+    root.title('Geometric editor')
 
     base_menu = MenuProcess(root)
     act = Actions(root, 'Newbut', "<Button-1>")
@@ -90,8 +87,8 @@ if __name__ == "__main__":
     # under_2_menu = BaseMenu.menu_col('Help')
 
     und_under_menu = base_menu.menu_ins(under_menu, 0, 'Model',
-                                        {'Create rectangle': act.crt_geom(), 'Create Oval': act.crt_geom(),
-                                         'Remove': act.crt_geom()})
+                                        {'Create rectangle': act.func_new_win, 'Create Oval': act.func_new_win,
+                                         'Remove': act.crt_geom})
 
     # und_under_menu = BaseMenu.menu_ins(under_2_menu, 'Version', 'Check for updates', 'Title')
 
@@ -103,9 +100,8 @@ if __name__ == "__main__":
     def_name = ListProcess(root, 1, 1, ['    ','','',''])
     def_name = ListProcess(root, 1, 2, ['    ','','',''])
     def_name = ListProcess(root, 1, 3, ['    ','','',''])
-    #button_1 = ButtonProcess(root, 'Нет, он - няша', "<Button-1>", 2, 0)
-    #button_1 = ButtonProcess(root, 'Да, пойду налимоню ему очко!', "<Button-1>", 2, 1)
-    #button_1 = ButtonProcess(root, 'Да, пойду налимоню ему очко!', "<Button-1>", 2, 1)
+    #button_1 = ButtonProcess(root, 'Button name_1', "<Button-1>", 2, 0)
+    #button_1 = ButtonProcess(root, 'Button name_2', "<Button-1>", 2, 1)
 
     # root.destroy()
     root.mainloop()
