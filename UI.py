@@ -36,6 +36,9 @@ class MainWin():
     def lstbox(self):
         return self.columns_lst
 
+    def remover(self):
+
+
 
 class NewWin():
     def __init__(self, workspace):
@@ -110,5 +113,5 @@ if __name__ == "__main__":
     base_win.menu_ins(under_menu, 0, 'Model',
                       {'Create rectangle': new_wind.new_win_rect,
                        'Create oval': new_wind.new_win_oval,
-                       'Remove': NewWin.button_save_whatdo})
+                       'Remove': base_win.remover})
     root.mainloop()
