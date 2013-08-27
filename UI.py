@@ -9,10 +9,10 @@ class MainWin():
         workspace.config(menu=self.menu_base)
         self.content()
 
-    def menu_col(self, title, inc_dict):
+    def menu_col(self, title, **kwargs):
         self.menu_col_1 = Menu(self.menu_base, tearoff=0)
         self.menu_base.add_cascade(label=title, menu=self.menu_col_1)
-        for i, j in inc_dict.items():
+        for i, j in kwargs.items():
             if i == "Exit":
                 self.menu_col_1.add_separator()
             self.menu_col_1.add_command(label=i, command=j)
@@ -27,7 +27,7 @@ class MainWin():
     def content(self):
         counter, self.columns_lst, column_titles = 0, [], ['Name', 'Type', 'X', 'Y']
         for column_title in column_titles:
-            column = Listbox(self.workspace)
+            column = Listbox(self.workspace, selectmode='multiple')
             column.grid(row=1, column=counter)
             self.columns_lst.append(column)
             Label(self.workspace, text=column_title, font='Tahoma 10').grid(column=counter, row=0, stick=N)
@@ -35,6 +35,14 @@ class MainWin():
 
     def lstbox(self):
         return self.columns_lst
+
+    def remover(self):
+        '''HOW TO GENERATE FOR FROM END'''
+        print (self.columns_lst[0].curselection())
+        lst = self.columns_lst[0].curselection()[0]
+        for selected_strings in range(len(self.columns_lst[0].curselection())):
+            for count in range(4):
+                self.columns_lst[count].delete(lst)
 
 
 class NewWin():
@@ -106,9 +114,9 @@ if __name__ == "__main__":
     root.title('Geometric editor')
     base_win = MainWin(root)
     new_wind = NewWin(root)        #WAGRAAAHHH
-    under_menu = base_win.menu_col('File', {'Exit': root.destroy})
+    under_menu = base_win.menu_col('File', Exit=root.destroy)
     base_win.menu_ins(under_menu, 0, 'Model',
                       {'Create rectangle': new_wind.new_win_rect,
                        'Create oval': new_wind.new_win_oval,
-                       'Remove': NewWin.button_save_whatdo})
+                       'Remove': base_win.remover})
     root.mainloop()
