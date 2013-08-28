@@ -37,12 +37,10 @@ class MainWin():
         return self.columns_lst
 
     def remover(self):
-        '''HOW TO GENERATE FOR FROM END'''
-        print (self.columns_lst[0].curselection())
-        lst = self.columns_lst[0].curselection()[0]
-        for selected_strings in range(len(self.columns_lst[0].curselection())):
-            for count in range(4):
-                self.columns_lst[count].delete(lst)
+        self.selected_strings = self.columns_lst[0].curselection()
+        for selected_string in range(len(self.columns_lst[0].curselection())):
+            for listbox_numb in range(4):
+                self.columns_lst[listbox_numb].delete(self.selected_strings[-1-selected_string])
 
 
 class NewWin():
