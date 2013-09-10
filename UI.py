@@ -1,5 +1,6 @@
 __author__ = 'Admin'
 from tkinter import *
+import tkinter.messagebox
 
 
 class MainWin():
@@ -27,7 +28,7 @@ class MainWin():
     def content(self):
         counter, self.columns_lst, column_titles = 0, [], ['Name', 'Type', 'X', 'Y']
         for column_title in column_titles:
-            column = Listbox(self.workspace, selectmode='multiple')
+            column = Listbox(self.workspace, selectmode='extended')
             column.grid(row=1, column=counter)
             self.columns_lst.append(column)
             Label(self.workspace, text=column_title, font='Tahoma 10').grid(column=counter, row=0, stick=N)
@@ -40,7 +41,7 @@ class MainWin():
         self.selected_strings = self.columns_lst[0].curselection()
         for selected_string in range(len(self.columns_lst[0].curselection())):
             for listbox_numb in range(4):
-                self.columns_lst[listbox_numb].delete(self.selected_strings[-1-selected_string])
+                self.columns_lst[listbox_numb].delete(self.selected_strings[-1 - selected_string])
 
 
 class NewWin():
@@ -50,7 +51,7 @@ class NewWin():
     def new_win_body(self):
         self.new_win = Toplevel(self.workspace)
         self.new_win.title('Create')
-        self.row_counter, self.entrys = 0, []
+        self.row_counter, self.lst_entrys = 0, []
         Label(self.new_win, text=' ', font='Tahoma 10').grid(column=0, row=6, stick=NW)
         Button(self.new_win, text='Save', command=self.button_save_whatdo).grid(column=1, row=100, stick=N)
         Button(self.new_win, text='Cancel', command=self.new_win.destroy).grid(column=1, row=100, stick=E)
@@ -64,9 +65,9 @@ class NewWin():
             entry = Entry(self.new_win)
             entry.grid(column=1, row=self.row_counter, sticky=N)
             if i != 'Width:' or i != 'Height:  ':
-                self.entrys.append(entry)
+                self.lst_entrys.append(entry)
             self.row_counter += 1
-        self.entrys.insert(1, 'Rectangle')
+        self.lst_entrys.insert(1, 'Rectangle')
 
 
     def new_win_oval(self):
@@ -82,29 +83,48 @@ class NewWin():
             else:
                 self.entry = Entry(self.new_win)
                 self.entry.grid(column=1, row=self.row_counter, sticky=N)
-            if title == 'Name:' or title == 'X:' or title == 'Y:':
-                self.entrys.append(self.entry)
+                self.lst_entrys.append(self.entry)
             self.row_counter += 1
-        self.entrys.insert(1, 'Oval')
+        self.lst_entrys.insert(1, 'Oval')
 
     def checkbutton_whatdo(self):
         if self.checkbutton_var.get():
             self.entry.grid_remove()
             self.label.grid_remove()
             self.last_title = Label(self.new_win, text='Radius:  ', font='Tahoma 10').grid(column=0, row=4, sticky=W)
+            del self.lst_entrys[-1]
         else:
             self.entry.grid()
             self.label.grid()
             self.last_title = Label(self.new_win, text='Radius X:', font='Tahoma 10').grid(column=0, row=4, sticky=W)
+            self.lst_entrys.append(self.entry)
 
     def button_save_whatdo(self):
-        self.main_columns = base_win.lstbox()
-        for column in range(len(self.main_columns)):
-            if column == 1:
-                self.main_columns[column].insert(END, self.entrys[column])
+        values_entry = []
+        for val_entry in self.lst_entrys:
+            if isinstance(val_entry, str):
+                values_entry.append(val_entry)
             else:
-                self.main_columns[column].insert(END, self.entrys[column].get())
-        self.new_win.destroy()
+                values_entry.append(val_entry.get())
+
+        for numb_entry in range(len(values_entry)):
+            if numb_entry > 1:
+                try:
+                    int(values_entry[numb_entry])
+                    if numb_entry > 3:
+                        if values_entry[numb_entry].isdigit():
+                            pass
+                        else:
+                            tkinter.messagebox.showerror('Input error', 'Check that last entered values is positive')
+                            break
+                except ValueError:
+                    tkinter.messagebox.showerror('Input error', 'Check entered values')
+                    break
+        else:
+            self.main_columns = base_win.lstbox()
+            for column in range(len(self.main_columns)):
+                self.main_columns[column].insert(END, values_entry[column])
+            self.new_win.destroy()
 
 
 if __name__ == "__main__":
