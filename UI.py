@@ -38,6 +38,7 @@ class View():
 
 
     def hold(self):
+        main_controller.lstbox_bind()
         self.root.mainloop()
 
     def newwin(self):
@@ -57,11 +58,9 @@ class View():
         self.y_entry.grid(column=1, row=2, sticky=N)
         Label(self.nw_frame, text=' ', font='Tahoma 10').grid(column=0, row=19)
 
-        Button(self.nw_frame, text='Save', width=6, command=main_controller.savebutton_whatdo).grid(column=0, row=20,
-                                                                                                     columnspan=2)
+        self.savebutton = Button(self.nw_frame, text='Save', width=6, command=main_controller.savebutton_whatdo)
+        self.savebutton.grid(column=0, row=20, columnspan=2)
         Button(self.nw_frame, text='Cancel', width=6, command=self.new_win.destroy).grid(column=1, row=20, stick=E)
-
-
 
 
     def rect_win(self):
@@ -74,17 +73,17 @@ class View():
         self.heigth_entry = Entry(self.nw_frame)
         self.heigth_entry.grid(column=1, row=4, sticky=N)
 
-        main_model.save_entryes()
-        main_model.lst_entryes.insert(1, 'Rectangle')
-        main_model.lst_entryes.extend([self.width_entry,self.heigth_entry])
-
+        self.lst_entryes = [self.name_entry, 'Rectangle', self.x_entry, self.y_entry, self.width_entry,
+                            self.heigth_entry]
 
     def oval_win(self):
         self.newwin()
 
         Label(self.nw_frame, text='[x] Is circle:', font='Tahoma 10').grid(column=0, row=3, sticky=W)
-        Checkbutton(self.nw_frame, command=main_controller.checkbutton_whatdo, var=main_model.checkbutton_var).grid(
-            column=1, row=3, stick=W)
+        self.checkbutton = Checkbutton(self.nw_frame, command=main_controller.checkbutton_whatdo,
+                                       var=main_model.checkbutton_var)
+        self.checkbutton.deselect()
+        self.checkbutton.grid(column=1, row=3, stick=W)
         self.lbl_radx = Label(self.nw_frame, text='Radius X:', font='Tahoma 10')
         self.lbl_radx.grid(column=0, row=4, sticky=W)
         self.radx_entry = Entry(self.nw_frame)
@@ -94,72 +93,124 @@ class View():
         self.rady_entry = Entry(self.nw_frame)
         self.rady_entry.grid(column=1, row=5)
 
-        main_model.save_entryes()
-        main_model.lst_entryes.insert(1, 'Oval')
-        main_model.lst_entryes.extend([self.radx_entry,self.rady_entry])
-
+        self.lst_entryes = [self.name_entry, 'Oval', self.x_entry, self.y_entry, self.radx_entry, self.rady_entry,
+                            main_model.checkbutton_var]
 
 
 class Model():
     def __init__(self):
         self.lstbox_lst = [main_view.lstbox_name, main_view.lstbox_type, main_view.lstbox_X, main_view.lstbox_Y]
         self.checkbutton_var = IntVar()
-        print(self.lstbox_lst)
+        self.lst_allval = []
 
     def save_entryes(self):
-        self.lst_entryes = [main_view.name_entry, main_view.x_entry, main_view.y_entry]
+        self.values_entry = []
+        for val_entry in main_view.lst_entryes:
+            if isinstance(val_entry, str):
+                self.values_entry.append(val_entry)
+            else:
+                self.values_entry.append(str(val_entry.get()))
+        pass
+
+    def save_allval(self):
+        self.lst_allval.append(self.values_entry)
 
 
 class Controller():
     def __init__(self):
         pass
 
+    def lstbox_bind(self):
+        main_view.lstbox_name.bind("<Double-Button-1>", self.editer)
+
+    def editer(self, event):
+        self.selection = int(main_view.lstbox_name.curselection()[0])
+        if main_model.lst_allval[self.selection][1] == 'Rectangle':
+            main_view.rect_win()
+            main_view.width_entry.insert(END, main_model.lst_allval[self.selection][4])
+            main_view.heigth_entry.insert(END, main_model.lst_allval[self.selection][5])
+
+        else:
+            main_view.oval_win()
+            main_view.radx_entry.insert(END, main_model.lst_allval[self.selection][4])
+            if int(main_model.lst_allval[self.selection][-1]) == 0:
+                main_view.rady_entry.insert(END, main_model.lst_allval[self.selection][5])
+            else:
+                main_view.checkbutton.select()
+                self.hide_radius()
+
+        main_view.name_entry.insert(END, main_model.lst_allval[self.selection][0])
+        main_view.x_entry.insert(END, main_model.lst_allval[self.selection][2])
+        main_view.y_entry.insert(END, main_model.lst_allval[self.selection][3])
+
+        main_view.new_win.title('Edit')
+        main_view.savebutton.config(command=self.editbutton_whatdo)
+        print(self.selection)
+
     def remover(self):
         self.selected_strings = main_model.lstbox_lst[0].curselection()
-        for selected_string in range(len(main_model.lstbox_lst[0].curselection())):
+        for selected_string in range(len(self.selected_strings)):
             for listbox_numb in range(4):
                 main_model.lstbox_lst[listbox_numb].delete(self.selected_strings[-1 - selected_string])
-        print('check')
-
+            del main_model.lst_allval[int(self.selected_strings[-1 - selected_string])]
+        print(main_model.lst_allval)
 
     def checkbutton_whatdo(self):
         if main_model.checkbutton_var.get():
-            main_view.rady_entry.grid_remove()
-            main_view.lbl_rady.grid_remove()
-            main_view.lbl_radx.config(text='Radius:')
-            del main_model.lst_entryes[-1]
+            self.hide_radius()
         else:
             main_view.rady_entry.grid()
             main_view.lbl_rady.grid()
             main_view.lbl_radx.config(text='Radius X:')
-            main_model.lst_entryes.append(main_view.rady_entry)
+            main_view.lst_entryes.insert(5, main_view.rady_entry)
 
-    def savebutton_whatdo(self):
-        print(main_model.lst_entryes)
-        values_entry = []
-        for val_entry in main_model.lst_entryes:
-            if isinstance(val_entry, str):
-                values_entry.append(val_entry)
-            else:
-                values_entry.append(val_entry.get())
+    def hide_radius(self):
+        main_view.rady_entry.grid_remove()
+        main_view.lbl_rady.grid_remove()
+        main_view.lbl_radx.config(text='Radius:')
+        del main_view.lst_entryes[5]
 
-        for numb_entry in range(len(values_entry)):
+    def check_val(self):
+        main_model.save_entryes()
+        self.readytosave = False
+        for numb_entry in range(len(main_model.values_entry)):
             if numb_entry > 1:
                 try:
-                    int(values_entry[numb_entry])
-                    if numb_entry > 3:
-                        if values_entry[numb_entry].isdigit():
+                    int(main_model.values_entry[numb_entry])
+                    if 6 > numb_entry > 3:
+                        if int(main_model.values_entry[numb_entry]) > 0:
                             pass
                         else:
                             tkinter.messagebox.showerror('Input error', 'Check that last entered values is positive')
+                            main_view.new_win.focus()
                             break
                 except ValueError:
-                    tkinter.messagebox.showerror('Input error', 'Check entered values')
+                    tkinter.messagebox.showerror('Input error', 'Check that entered values is integer')
+                    main_view.new_win.focus()
                     break
         else:
-            for lstbox, val in zip(main_model.lstbox_lst, values_entry):
+            self.readytosave = True
+
+    def savebutton_whatdo(self):
+        self.check_val()
+        if self.readytosave:
+            for lstbox, val in zip(main_model.lstbox_lst, main_model.values_entry):
                 lstbox.insert(END, val)
+            main_model.save_allval()
             main_view.new_win.destroy()
+            print(main_model.lst_allval)
+
+
+    def editbutton_whatdo(self):
+        self.check_val()
+        if self.readytosave:
+            for lstbox, val in zip(main_model.lstbox_lst, main_model.values_entry):
+                lstbox.delete(self.selection)
+                lstbox.insert(self.selection, val)
+            del main_model.lst_allval[self.selection]
+            main_model.lst_allval.insert(self.selection, main_model.values_entry)
+            main_view.new_win.destroy()
+            print(main_model.lst_allval)
 
 
 if __name__ == "__main__":
